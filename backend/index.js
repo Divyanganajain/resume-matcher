@@ -1,11 +1,13 @@
 const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
+const multer = require('multer')
+const pdfParse = require('pdf-parse')
 
 const app = express()
 app.use(cors())
 app.use(express.json())
-
+const upload = multer({ storage: multer.memoryStorage() })
 async function callGeminiWithRetry(prompt, retries = 3) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`
 
@@ -33,7 +35,15 @@ async function callGeminiWithRetry(prompt, retries = 3) {
 
   throw new Error('Gemini API failed after multiple retries')
 }
-
+app.post('/api/upload-resume', upload.single('resume'), async (req, res) => {
+  try {
+    const data = await pdfParse(req.file.buffer)
+    res.json({ text: data.text })
+  } catch (err) {
+    console.error('PDF parse error:', err)
+    res.status(500).json({ error: 'Failed to read PDF' })
+  }
+})
 app.post('/api/analyze', async (req, res) => {
   const { resumeText, jdText } = req.body
 

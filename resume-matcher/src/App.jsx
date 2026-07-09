@@ -7,6 +7,7 @@ function App() {
   const [results, setResults] = useState(null)
   const [loading, setLoading] = useState(false)
   const [rewrites, setRewrites] = useState({})
+  const [uploading, setUploading] = useState(false)
 
   async function handleAnalyze() {
     setLoading(true)
@@ -42,7 +43,29 @@ function App() {
       console.error('Rewrite error:', err)
     }
   }
+async function handleFileUpload(e) {
+  const file = e.target.files[0]
+  if (!file) return
 
+  setUploading(true)
+
+  const formData = new FormData()
+  formData.append('resume', file)
+
+  try {
+    const response = await fetch('https://resume-matcher-backend-d5q4.onrender.com/api/upload-resume', {
+      method: 'POST',
+      body: formData
+    })
+
+    const data = await response.json()
+    setResumeText(data.text)
+  } catch (err) {
+    console.error('Upload error:', err)
+  }
+
+  setUploading(false)
+}
   return (
     <div className="min-h-screen bg-[var(--color-paper)] text-[var(--color-ink)] px-6 py-16">
       <div className="max-w-3xl mx-auto">
@@ -59,12 +82,27 @@ function App() {
 
         {/* Inputs */}
         <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <textarea
-            placeholder="Paste your resume here"
-            value={resumeText}
-            onChange={(e) => setResumeText(e.target.value)}
-            className="h-64 p-4 rounded-lg border border-gray-200 bg-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)]"
-          ></textarea>
+          <div>
+  <label className="flex items-center justify-between mb-2">
+    <span className="text-xs font-mono text-gray-400 uppercase tracking-wide">Resume</span>
+    <label className="text-xs font-mono text-[var(--color-signal)] cursor-pointer hover:underline">
+      {uploading ? 'Reading PDF...' : 'Upload PDF'}
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+    </label>
+  </label>
+
+  <textarea
+    placeholder="Paste your resume here, or upload a PDF"
+    value={resumeText}
+    onChange={(e) => setResumeText(e.target.value)}
+    className="h-64 w-full p-4 rounded-lg border border-gray-200 bg-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)]"
+  ></textarea>
+</div>
 
           <textarea
             placeholder="Paste job description here"
