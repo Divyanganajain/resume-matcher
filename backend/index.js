@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const multer = require('multer')
-const {pdfParse} = require('pdf-parse')
+const {PDFParse} = require('pdf-parse')
 
 const app = express()
 app.use(cors())
@@ -37,8 +37,9 @@ async function callGeminiWithRetry(prompt, retries = 3) {
 }
 app.post('/api/upload-resume', upload.single('resume'), async (req, res) => {
   try {
-    const data = await pdfParse(req.file.buffer)
-    res.json({ text: data.text })
+    const parser = new PDFParse({ data: req.file.buffer })
+    const result = await parser.getText()
+    res.json({ text: result.text })
   } catch (err) {
     console.error('PDF parse error:', err)
     res.status(500).json({ error: 'Failed to read PDF' })
