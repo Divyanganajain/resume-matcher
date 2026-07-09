@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const multer = require('multer')
-const pdfParse = require('pdf-parse')
+const {pdfParse} = require('pdf-parse')
 
 const app = express()
 app.use(cors())
