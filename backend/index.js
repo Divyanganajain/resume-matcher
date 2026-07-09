@@ -6,6 +6,34 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+async function callGeminiWithRetry(prompt, retries = 3) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`
+
+  for (let i = 0; i < retries; i++) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    })
+
+    const data = await response.json()
+
+    if (data.candidates) {
+      let text = data.candidates[0].content.parts[0].text
+      text = text.replace(/```json|```/g, '').trim()
+      return JSON.parse(text)
+    }
+
+    console.log(`Attempt ${i + 1} failed:`, data.error?.message || 'Unknown error')
+
+    if (i < retries - 1) {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+    }
+  }
+
+  throw new Error('Gemini API failed after multiple retries')
+}
+
 app.post('/api/analyze', async (req, res) => {
   const { resumeText, jdText } = req.body
 
@@ -26,25 +54,31 @@ Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use t
 }`
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      }
-    )
-
-    const data = await response.json()
-    let text = data.candidates[0].content.parts[0].text
-    text = text.replace(/```json|```/g, '').trim()
-
-    const parsed = JSON.parse(text)
+    const parsed = await callGeminiWithRetry(prompt)
     res.json(parsed)
   } catch (err) {
-    console.error('Error:', err)
+    console.error('Analyze error:', err)
+    res.status(500).json({ error: 'Something went wrong' })
+  }
+})
+
+app.post('/api/rewrite', async (req, res) => {
+  const { bulletText } = req.body
+
+  const prompt = `You are a resume writing expert. Rewrite the following resume bullet point to be more impactful. Use strong action verbs, add quantifiable metrics where reasonable (even if estimated), and keep it to one line.
+
+Original bullet: "${bulletText}"
+
+Return ONLY a valid JSON object, no markdown, no backticks. Use this structure:
+{
+  "rewritten": "<the improved bullet point>"
+}`
+
+  try {
+    const parsed = await callGeminiWithRetry(prompt)
+    res.json(parsed)
+  } catch (err) {
+    console.error('Rewrite error:', err)
     res.status(500).json({ error: 'Something went wrong' })
   }
 })

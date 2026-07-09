@@ -6,6 +6,7 @@ function App() {
   const [jdText, setJdText] = useState('')
   const [results, setResults] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [rewrites, setRewrites] = useState({})
 
   async function handleAnalyze() {
     setLoading(true)
@@ -25,6 +26,21 @@ function App() {
     }
 
     setLoading(false)
+  }
+
+  async function handleRewrite(bulletText, index) {
+    try {
+      const response = await fetch('https://resume-matcher-backend-d5q4.onrender.com/api/rewrite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bulletText })
+      })
+
+      const data = await response.json()
+      setRewrites(prev => ({ ...prev, [index]: data.rewritten }))
+    } catch (err) {
+      console.error('Rewrite error:', err)
+    }
   }
 
   return (
@@ -130,6 +146,19 @@ function App() {
                     <div key={index} className="p-4 rounded-lg bg-gray-50 border border-gray-200">
                       <p className="text-sm font-medium mb-1">{bullet.original}</p>
                       <p className="text-sm text-gray-500">{bullet.suggestion}</p>
+
+                      {rewrites[index] ? (
+                        <p className="text-sm text-[var(--color-good)] font-medium mt-2 pt-2 border-t border-gray-200">
+                          ✓ {rewrites[index]}
+                        </p>
+                      ) : (
+                        <button
+                          onClick={() => handleRewrite(bullet.original, index)}
+                          className="text-xs font-mono text-[var(--color-signal)] mt-2 hover:underline"
+                        >
+                          Rewrite this bullet →
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
