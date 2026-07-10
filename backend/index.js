@@ -93,6 +93,34 @@ Return ONLY a valid JSON object, no markdown, no backticks. Use this structure:
     res.status(500).json({ error: 'Something went wrong' })
   }
 })
+app.post('/api/build-resume', async (req, res) => {
+  const { rawInfo } = req.body
+
+  const prompt = `You are a professional resume writer. The user will give you raw, unorganized information about their education, work experience, projects, and skills. Turn this into a clean, well-structured, professional resume in plain text format.
+
+Use this structure, in this order:
+- Education
+- Projects (2-3 strong bullet points each, using powerful action verbs and quantifiable impact where reasonable)
+- Skills
+
+Keep the tone professional and concise, the way a real resume reads. Do not invent facts that are not implied by the raw info, but you may phrase things more professionally.
+
+Raw info from user:
+${rawInfo}
+
+Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use this exact structure:
+{
+  "resume": "<the full formatted resume as plain text, using \\n for line breaks>"
+}`
+
+  try {
+    const parsed = await callGeminiWithRetry(prompt)
+    res.json(parsed)
+  } catch (err) {
+    console.error('Build resume error:', err)
+    res.status(500).json({ error: 'Something went wrong' })
+  }
+})
 
 app.listen(5000, () => {
   console.log('Server running on port 5000')
