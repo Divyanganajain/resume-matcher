@@ -93,6 +93,37 @@ Return ONLY a valid JSON object, no markdown, no backticks. Use this structure:
     res.status(500).json({ error: 'Something went wrong' })
   }
 })
+app.post('/api/interview-questions', async (req, res) => {
+  const { resumeText, jdText } = req.body
+
+  const prompt = `You are an experienced technical interviewer. Based on the following resume and job description, generate 8 likely interview questions the candidate should prepare for.
+
+Include a mix of:
+- Questions about specific projects/experience mentioned in the resume
+- Technical questions relevant to the skills required in the job description
+- 1-2 behavioral questions relevant to the role
+
+RESUME:
+${resumeText}
+
+JOB DESCRIPTION:
+${jdText}
+
+Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use this exact structure:
+{
+  "questions": [
+    { "question": "<the interview question>", "type": "<Technical, Project, or Behavioral>" }
+  ]
+}`
+
+  try {
+    const parsed = await callGeminiWithRetry(prompt)
+    res.json(parsed)
+  } catch (err) {
+    console.error('Interview questions error:', err)
+    res.status(500).json({ error: 'Something went wrong' })
+  }
+})
 app.post('/api/build-resume', async (req, res) => {
   const { rawInfo } = req.body
 
