@@ -159,7 +159,7 @@ function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 3.6 }}
-          className="grid md:grid-cols-2 gap-6"
+          className="grid md:grid-cols-3 gap-6"
         >
           <Link to="/build">
             <motion.div
@@ -190,6 +190,20 @@ function LandingPage() {
               </p>
             </motion.div>
           </Link>
+          <Link to="/interview">
+  <motion.div
+    whileHover={{ scale: 1.03, rotateX: 4, rotateY: -4 }}
+    style={{ transformStyle: 'preserve-3d' }}
+    className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-warn)] transition-colors text-left h-full"
+  >
+    <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-warn)] mb-2">
+      Interview Questions
+    </h2>
+    <p className="text-sm text-gray-500">
+      Get likely interview questions based on your resume and target role.
+    </p>
+  </motion.div>
+</Link>
         </motion.div>
 
       </div>
