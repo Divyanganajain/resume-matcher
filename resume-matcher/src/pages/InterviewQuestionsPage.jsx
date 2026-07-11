@@ -1,15 +1,18 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 function InterviewQuestionsPage() {
-  const [resumeText, setResumeText] = useState('')
-  const [jdText, setJdText] = useState('')
+  const location = useLocation()
+  const [resumeText, setResumeText] = useState(location.state?.resumeText || '')
+  const [jdText, setJdText] = useState(location.state?.jdText || '')
   const [questions, setQuestions] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleGenerate() {
     setLoading(true)
     setQuestions(null)
+    setError('')
 
     try {
       const response = await fetch('https://resume-matcher-backend-d5q4.onrender.com/api/interview-questions', {
@@ -18,10 +21,15 @@ function InterviewQuestionsPage() {
         body: JSON.stringify({ resumeText, jdText })
       })
 
+      if (!response.ok) {
+        throw new Error('Server error')
+      }
+
       const data = await response.json()
       setQuestions(data.questions)
     } catch (err) {
       console.error('Interview questions error:', err)
+      setError('Something went wrong generating questions. Please try again in a moment.')
     }
 
     setLoading(false)
@@ -69,7 +77,7 @@ function InterviewQuestionsPage() {
           ></textarea>
         </div>
 
-        <div className="text-center mb-12">
+        <div className="text-center mb-6">
           <button
             onClick={handleGenerate}
             disabled={loading}
@@ -78,6 +86,10 @@ function InterviewQuestionsPage() {
             {loading ? 'Generating...' : 'Generate Questions'}
           </button>
         </div>
+
+        {error && (
+          <p className="text-center text-sm text-red-500 mb-6">{error}</p>
+        )}
 
         {questions && (
           <div className="border-t border-gray-200 pt-10 space-y-3">

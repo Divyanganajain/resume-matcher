@@ -1,17 +1,21 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 function CheckResumePage() {
-  const [resumeText, setResumeText] = useState('')
-  const [jdText, setJdText] = useState('')
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [resumeText, setResumeText] = useState(location.state?.resumeText || '')
+  const [jdText, setJdText] = useState(location.state?.jdText || '')
   const [results, setResults] = useState(null)
   const [loading, setLoading] = useState(false)
   const [rewrites, setRewrites] = useState({})
   const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleAnalyze() {
     setLoading(true)
     setResults(null)
+    setError('')
 
     try {
       const response = await fetch('https://resume-matcher-backend-d5q4.onrender.com/api/analyze', {
@@ -20,10 +24,15 @@ function CheckResumePage() {
         body: JSON.stringify({ resumeText, jdText })
       })
 
+      if (!response.ok) {
+        throw new Error('Server error')
+      }
+
       const data = await response.json()
       setResults(data)
     } catch (err) {
       console.error('Frontend error:', err)
+      setError('Something went wrong analyzing your resume. Please try again in a moment.')
     }
 
     setLoading(false)
@@ -120,7 +129,7 @@ function CheckResumePage() {
         </div>
 
         {/* Button */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-6">
           <button
             onClick={handleAnalyze}
             disabled={loading}
@@ -129,6 +138,10 @@ function CheckResumePage() {
             {loading ? 'Scanning...' : 'Analyze Match'}
           </button>
         </div>
+
+        {error && (
+          <p className="text-center text-sm text-red-500 mb-6">{error}</p>
+        )}
 
         {/* Results */}
         {results && (
@@ -172,7 +185,7 @@ function CheckResumePage() {
             </div>
 
             {results.weakBullets.length > 0 && (
-              <div>
+              <div className="mb-10">
                 <h3 className="font-mono text-xs tracking-widest uppercase text-gray-400 mb-3">
                   Weak Bullet Points
                 </h3>
@@ -199,6 +212,16 @@ function CheckResumePage() {
                 </div>
               </div>
             )}
+
+            <div className="text-center">
+              <button
+                onClick={() => navigate('/interview', { state: { resumeText, jdText } })}
+                className="bg-[var(--color-warn)] text-white font-mono text-sm tracking-wide px-6 py-2.5 rounded-lg hover:opacity-90 transition"
+              >
+                Get Interview Questions →
+              </button>
+            </div>
+
           </div>
         )}
 

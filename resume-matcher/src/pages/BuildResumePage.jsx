@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 function BuildResumePage() {
   const [rawInfo, setRawInfo] = useState('')
   const [jdText, setJdText] = useState('')
   const [builtResume, setBuiltResume] = useState('')
   const [building, setBuilding] = useState(false)
+  const navigate = useNavigate()
 
   async function handleBuildResume() {
     setBuilding(true)
@@ -92,9 +93,14 @@ function BuildResumePage() {
             <div className="p-6 rounded-lg bg-white border border-gray-200">
               <pre className="whitespace-pre-wrap font-mono text-sm">{builtResume}</pre>
             </div>
-            <p className="text-xs text-gray-400 mt-4 text-center">
-              Copy this and paste it into "Check My Resume" to see your ATS score.
-            </p>
+            <div className="text-center mt-6">
+              <button
+                onClick={() => navigate('/check', { state: { resumeText: builtResume, jdText } })}
+                className="bg-[var(--color-ink)] text-white font-mono text-sm tracking-wide px-6 py-2.5 rounded-lg hover:opacity-90 transition"
+              >
+                Check This Resume's ATS Score →
+              </button>
+            </div>
           </div>
         )}
 
