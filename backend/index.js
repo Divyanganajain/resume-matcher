@@ -48,7 +48,7 @@ app.post('/api/upload-resume', upload.single('resume'), async (req, res) => {
 app.post('/api/analyze', async (req, res) => {
   const { resumeText, jdText } = req.body
 
-  const prompt = `You are a resume analysis tool. Compare the following resume against the job description.
+ const prompt = `You are a resume analysis tool. Compare the following resume against the job description.
 
 RESUME:
 ${resumeText}
@@ -59,6 +59,7 @@ ${jdText}
 Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use this exact structure:
 {
   "atsScore": <number 0-100>,
+  "scoreExplanation": "<1-2 sentence explanation of why this score was given, mentioning specific strengths and specific gaps>",
   "matchingSkills": [<list of skills found in both>],
   "missingSkills": [<list of skills in JD but not resume>],
   "weakBullets": [{"original": "<vague bullet>", "suggestion": "<why it's weak>"}]

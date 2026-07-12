@@ -147,14 +147,19 @@ function CheckResumePage() {
         {results && (
           <div className="border-t border-gray-200 pt-10">
 
-            <div className="text-center mb-10">
-              <p className="font-mono text-xs tracking-widest uppercase text-gray-400 mb-1">
-                ATS Score
-              </p>
-              <p className="font-mono text-6xl font-bold text-[var(--color-signal)]">
-                {results.atsScore}
-              </p>
-            </div>
+           <div className="text-center mb-10">
+  <p className="font-mono text-xs tracking-widest uppercase text-gray-400 mb-1">
+    ATS Score
+  </p>
+  <p className="font-mono text-6xl font-bold text-[var(--color-signal)]">
+    {results.atsScore}
+  </p>
+  {results.scoreExplanation && (
+    <p className="text-sm text-gray-500 max-w-md mx-auto mt-3">
+      {results.scoreExplanation}
+    </p>
+  )}
+</div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-10">
               <div>
