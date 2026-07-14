@@ -15,7 +15,7 @@ function formatResumeAsText(resumeData) {
     lines.push('EXPERIENCE')
     resumeData.experience.forEach(exp => {
       lines.push(`${exp.role} — ${exp.company} (${exp.dates})`)
-      exp.bullets.forEach(b => lines.push(`- ${b}`))
+      exp.bullets?.forEach(b => lines.push(`- ${b}`))
     })
     lines.push('')
   }
@@ -28,8 +28,8 @@ function formatResumeAsText(resumeData) {
   if (resumeData.projects?.length > 0) {
     lines.push('PROJECTS')
     resumeData.projects.forEach(p => {
-      lines.push(`${p.name}: ${p.description}`)
-      p.bullets.forEach(b => lines.push(`- ${b}`))
+      lines.push(`${p.name}${p.role ? ' — ' + p.role : ''}: ${p.description}`)
+      if (p.techStack?.length > 0) lines.push(`Tech: ${p.techStack.join(', ')}`)
     })
     lines.push('')
   }
@@ -42,18 +42,17 @@ function formatResumeAsText(resumeData) {
 
   if (resumeData.strengths?.length > 0) {
     lines.push('STRENGTHS')
-    lines.push(resumeData.strengths.join(', '))
+    resumeData.strengths.forEach(s => lines.push(`${s.title}: ${s.description}`))
     lines.push('')
   }
 
   if (resumeData.certificates?.length > 0) {
     lines.push('CERTIFICATES')
-    resumeData.certificates.forEach(c => lines.push(`- ${c}`))
+    resumeData.certificates.forEach(c => lines.push(`- ${c.title} (${c.issuer})`))
   }
 
   return lines.join('\n')
 }
-
 function BuildResumePage() {
   const [rawInfo, setRawInfo] = useState('')
   const [jdText, setJdText] = useState('')
