@@ -39,174 +39,301 @@ function LandingPage() {
     { width: 'w-full', color: 'bg-gray-200', delay: 3.3 },
   ]
 
+  const howItWorks = [
+    { n: '01', title: 'Build', desc: 'Give it your raw background — it writes a structured, ATS-optimized draft.', to: '/build' },
+    { n: '02', title: 'Check', desc: 'Paste a job description. Get your ATS score, missing skills, and weak bullets.', to: '/check' },
+    { n: '03', title: 'Interview', desc: 'Get tailored interview questions based on your resume and the role.', to: '/interview' },
+  ]
+
+  const features = [
+    { title: 'Keyword scanning', desc: 'See exactly which skills the JD wants and which ones your resume is missing.' },
+    { title: 'Bullet rewrites', desc: 'Weak, vague bullets get flagged and rewritten with stronger action verbs and real impact.' },
+    { title: 'PDF upload', desc: 'Already have a resume? Upload the PDF directly instead of retyping everything.' },
+    { title: 'Styled PDF export', desc: 'Download a clean, ATS-friendly resume the moment it\'s built.' },
+  ]
+
   return (
-    <div className="min-h-screen bg-[var(--color-paper)] text-[var(--color-ink)] px-6 py-16 overflow-hidden">
-      <div className="max-w-3xl mx-auto text-center">
+    <div className="min-h-screen bg-[var(--color-paper)] text-[var(--color-ink)] overflow-hidden bg-paper-texture">
 
-        <motion.p
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="font-mono text-xs tracking-widest uppercase text-[var(--color-signal)] mb-2"
-        >
-          Resume Diagnostic
-        </motion.p>
-
-        <motion.h1
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl font-semibold tracking-tight mb-4"
-        >
-          Resume Matcher
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-gray-500 mb-12"
-        >
-          Build a new resume from scratch, or check how your existing one stacks up.
-        </motion.p>
-
-        {/* Resume graphic with magnifying glass */}
-        <div className="relative w-full max-w-md mx-auto mb-16 h-80">
-
-          {/* Background desk scene elements */}
-          <motion.div
-            initial={{ opacity: 0, x: -20, rotate: -6 }}
-            animate={{ opacity: 0.5, x: 0, rotate: -8 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="absolute -top-4 -left-6 w-24 h-32 bg-gray-100 border border-gray-200 rounded"
-          ></motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 20, rotate: 8 }}
-            animate={{ opacity: 0.6, x: 0, rotate: 10 }}
-            transition={{ duration: 0.8, delay: 0.15 }}
-            className="absolute -top-6 -right-8 w-28 h-20 bg-gray-200 rounded-lg"
-          >
-            <div className="grid grid-cols-6 gap-1 p-3">
-              {Array.from({ length: 24 }).map((_, i) => (
-                <div key={i} className="w-1.5 h-1.5 bg-gray-300 rounded-sm"></div>
-              ))}
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-[var(--color-paper)]/85 border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full border-2 border-[var(--color-signal)] flex items-center justify-center">
+              <span className="font-mono text-[10px] font-bold text-[var(--color-signal)]">RM</span>
             </div>
-          </motion.div>
+            <span className="font-semibold text-sm tracking-tight">Resume Matcher</span>
+          </div>
+         <div className="flex items-center gap-7 font-mono text-sm font-semibold text-[var(--color-ink)]">
+  <Link to="/build" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Build</Link>
+  <Link to="/check" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Check</Link>
+  <Link to="/interview" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Interview</Link>
+            <Link
+              to="/check"
+              className="bg-[var(--color-ink)] text-white px-4 py-1.5 rounded-full hover:opacity-85 transition"
+            >
+              Try it →
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <div className="px-6 pt-10 pb-6">
+        <div className="max-w-4xl mx-auto text-center">
+
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="font-mono text-xs tracking-widest uppercase text-[var(--color-signal)] mb-2"
+          >
+            Resume Diagnostic
+          </motion.p>
+
+          <motion.h1
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-5xl tracking-tight mb-4"
+            style={{ fontFamily: 'Lora, serif', fontWeight: 600 }}
+          >
+            Resume Matcher
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-gray-500 mb-16"
+          >
+            Build a new resume from scratch, or check how your existing one stacks up.
+          </motion.p>
+
+          {/* Resume graphic with magnifying glass */}
+          <div className="relative w-full max-w-lg mx-auto mb-16 h-96">
+
+            {/* soft ambient glow behind the scene, like a desk lamp, not a generic blob */}
+            <div
+              className="absolute inset-0 -z-10"
+              style={{
+                background: 'radial-gradient(ellipse 60% 50% at 50% 40%, var(--color-signal) 0%, transparent 70%)',
+                opacity: 0.06,
+              }}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, x: -20, rotate: -6 }}
+              animate={{ opacity: 0.5, x: 0, rotate: -8 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="absolute -top-4 -left-6 w-24 h-32 bg-gray-100 border border-gray-200 rounded"
+            ></motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20, rotate: 8 }}
+              animate={{ opacity: 0.6, x: 0, rotate: 10 }}
+              transition={{ duration: 0.8, delay: 0.15 }}
+              className="absolute -top-6 -right-8 w-28 h-20 bg-gray-200 rounded-lg"
+            >
+              <div className="grid grid-cols-6 gap-1 p-3">
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <div key={i} className="w-1.5 h-1.5 bg-gray-300 rounded-sm"></div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 0.7, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="absolute bottom-2 -left-10 w-1 h-24 bg-[var(--color-warn)] rounded-full origin-bottom"
+              style={{ rotate: '35deg' }}
+            ></motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.5, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.25 }}
+              className="absolute -bottom-4 -right-6 w-14 h-14 bg-gray-200 rounded-full border-4 border-gray-100"
+            ></motion.div>
+
+            {/* Resume card */}
+            <motion.div
+              initial={{ x: -200, opacity: 0, rotate: -8 }}
+              animate={{ x: 0, opacity: 1, rotate: -3 }}
+              transition={{ duration: 0.9, delay: 0.4, ease: 'easeOut' }}
+              className="absolute inset-0 bg-white border border-gray-200 rounded-lg shadow-lg p-6 text-left z-10"
+            >
+              {lines.map((line, i) => (
+                <div key={i} className="relative mb-3">
+                  <div className={`${line.width} h-2.5 ${line.color} rounded ${line.color.includes('gray') ? '' : 'opacity-70'}`}></div>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 0.6, delay: line.delay }}
+                    className="absolute inset-0 -mx-2 -my-1 rounded"
+                    style={{ background: 'radial-gradient(ellipse, var(--color-signal) 0%, transparent 70%)', opacity: 0.15 }}
+                  ></motion.div>
+                  {!line.color.includes('gray') && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: line.delay + 0.2 }}
+                    >
+                      <Checkmark />
+                    </motion.div>
+                  )}
+                </div>
+              ))}
+            </motion.div>
+
+            {/* ATS Score stamp — the payoff moment once scanning finishes */}
+            <motion.div
+              initial={{ opacity: 0, scale: 1.5, rotate: -25 }}
+              animate={{ opacity: 1, scale: 1, rotate: -10 }}
+              transition={{ duration: 0.45, delay: 3.4, type: 'spring', stiffness: 260, damping: 16 }}
+              className="absolute -right-3 -top-3 z-30 w-[72px] h-[72px] rounded-full border-[3px] border-[var(--color-signal)] bg-white flex flex-col items-center justify-center shadow-md"
+            >
+              <span className="font-mono text-[8px] tracking-widest text-[var(--color-signal)]">ATS SCORE</span>
+              <span className="font-mono text-xl font-bold leading-none text-[var(--color-signal)]">87</span>
+            </motion.div>
+
+            {/* Magnifying glass */}
+            <motion.div
+              initial={{ x: -80, y: -40, opacity: 0 }}
+              animate={{
+                x: [null, 60, 90, 110, 40, 130, 100, 90, 60],
+                y: [null, 10, 35, 60, 85, 110, 135, 160, 185],
+                opacity: [null, 1, 1, 1, 1, 1, 1, 1, 0]
+              }}
+              transition={{ duration: 2.3, delay: 1.2, ease: 'easeInOut' }}
+              className="absolute z-20"
+            >
+              <MagnifyingGlass />
+            </motion.div>
+
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 0.7, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="absolute bottom-2 -left-10 w-1 h-24 bg-[var(--color-warn)] rounded-full origin-bottom"
-            style={{ rotate: '35deg' }}
-          ></motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.5, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.25 }}
-            className="absolute -bottom-4 -right-6 w-14 h-14 bg-gray-200 rounded-full border-4 border-gray-100"
-          ></motion.div>
-
-          {/* Resume card */}
-          <motion.div
-            initial={{ x: -200, opacity: 0, rotate: -8 }}
-            animate={{ x: 0, opacity: 1, rotate: -3 }}
-            transition={{ duration: 0.9, delay: 0.4, ease: 'easeOut' }}
-            className="absolute inset-0 bg-white border border-gray-200 rounded-lg shadow-lg p-6 text-left z-10"
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 3.6 }}
+            className="grid md:grid-cols-3 gap-6"
           >
-            {lines.map((line, i) => (
-              <div key={i} className="relative mb-3">
-                <div className={`${line.width} h-2.5 ${line.color} rounded ${line.color.includes('gray') ? '' : 'opacity-70'}`}></div>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 1, 0] }}
-                  transition={{ duration: 0.6, delay: line.delay }}
-                  className="absolute inset-0 -mx-2 -my-1 rounded"
-                  style={{ background: 'radial-gradient(ellipse, var(--color-signal) 0%, transparent 70%)', opacity: 0.15 }}
-                ></motion.div>
-                {!line.color.includes('gray') && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: line.delay + 0.2 }}
-                  >
-                    <Checkmark />
-                  </motion.div>
-                )}
-              </div>
-            ))}
-          </motion.div>
+            <Link to="/build">
+              <motion.div
+                whileHover={{ scale: 1.03, rotateX: 4, rotateY: -4 }}
+                style={{ transformStyle: 'preserve-3d' }}
+                className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-signal)] hover:shadow-md transition-all text-left h-full"
+              >
+                <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-signal)] mb-2">
+                  Build a Resume
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Paste your raw experience and a job description — get an ATS-optimized resume draft.
+                </p>
+              </motion.div>
+            </Link>
 
-          {/* Magnifying glass */}
-          <motion.div
-            initial={{ x: -80, y: -40, opacity: 0 }}
-            animate={{
-              x: [null, 60, 90, 110, 40, 130, 100, 90, 60],
-              y: [null, 10, 35, 60, 85, 110, 135, 160, 185],
-              opacity: 1
-            }}
-            transition={{ duration: 2.3, delay: 1.2, ease: 'easeInOut' }}
-            className="absolute z-20"
-          >
-            <MagnifyingGlass />
+            <Link to="/check">
+              <motion.div
+                whileHover={{ scale: 1.03, rotateX: 4, rotateY: 4 }}
+                style={{ transformStyle: 'preserve-3d' }}
+                className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-good)] hover:shadow-md transition-all text-left h-full"
+              >
+                <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-good)] mb-2">
+                  Check My Resume
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Upload or paste your resume, compare it against a job description, and get your ATS score.
+                </p>
+              </motion.div>
+            </Link>
+
+            <Link to="/interview">
+              <motion.div
+                whileHover={{ scale: 1.03, rotateX: 4, rotateY: -4 }}
+                style={{ transformStyle: 'preserve-3d' }}
+                className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-warn)] hover:shadow-md transition-all text-left h-full"
+              >
+                <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-warn)] mb-2">
+                  Interview Questions
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Get likely interview questions based on your resume and target role.
+                </p>
+              </motion.div>
+            </Link>
           </motion.div>
 
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 3.6 }}
-          className="grid md:grid-cols-3 gap-6"
-        >
-          <Link to="/build">
-            <motion.div
-              whileHover={{ scale: 1.03, rotateX: 4, rotateY: -4 }}
-              style={{ transformStyle: 'preserve-3d' }}
-              className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-signal)] transition-colors text-left h-full"
-            >
-              <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-signal)] mb-2">
-                Build a Resume
-              </h2>
-              <p className="text-sm text-gray-500">
-                Paste your raw experience and a job description — get an ATS-optimized resume draft.
-              </p>
-            </motion.div>
-          </Link>
-
-          <Link to="/check">
-            <motion.div
-              whileHover={{ scale: 1.03, rotateX: 4, rotateY: 4 }}
-              style={{ transformStyle: 'preserve-3d' }}
-              className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-good)] transition-colors text-left h-full"
-            >
-              <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-good)] mb-2">
-                Check My Resume
-              </h2>
-              <p className="text-sm text-gray-500">
-                Upload or paste your resume, compare it against a job description, and get your ATS score.
-              </p>
-            </motion.div>
-          </Link>
-          <Link to="/interview">
-  <motion.div
-    whileHover={{ scale: 1.03, rotateX: 4, rotateY: -4 }}
-    style={{ transformStyle: 'preserve-3d' }}
-    className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-warn)] transition-colors text-left h-full"
-  >
-    <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-warn)] mb-2">
-      Interview Questions
-    </h2>
-    <p className="text-sm text-gray-500">
-      Get likely interview questions based on your resume and target role.
-    </p>
-  </motion.div>
-</Link>
-        </motion.div>
-
       </div>
+
+      {/* How it works — a real sequence, numbering earned */}
+      <div className="max-w-3xl mx-auto px-6 py-20 border-t border-gray-200 mt-12">
+        <p className="font-mono text-xs tracking-widest uppercase text-[var(--color-signal)] mb-3 text-center">
+          The process
+        </p>
+        <h2 className="text-3xl text-center mb-14" style={{ fontFamily: 'Lora, serif', fontWeight: 600 }}>
+          Three steps, in order.
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-10 relative">
+          <div className="hidden md:block absolute top-3 left-[16.5%] right-[16.5%] h-px bg-gray-200" />
+          {howItWorks.map((step, i) => (
+            <motion.div
+              key={step.n}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="relative"
+            >
+              <Link to={step.to} className="block group">
+                <div className="w-6 h-6 rounded-full bg-[var(--color-paper)] border-2 border-gray-300 group-hover:border-[var(--color-signal)] flex items-center justify-center mb-4 font-mono text-[10px] text-gray-500 group-hover:text-[var(--color-signal)] transition relative z-10">
+                  {i + 1}
+                </div>
+                <h3 className="font-semibold mb-1.5">{step.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="max-w-3xl mx-auto px-6 py-20 border-t border-gray-200">
+        <h2 className="text-3xl mb-12" style={{ fontFamily: 'Lora, serif', fontWeight: 600 }}>
+          Everything a resume review actually needs.
+        </h2>
+        <div className="grid md:grid-cols-2 gap-5">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="p-6 rounded-lg border border-gray-200 bg-white hover:shadow-sm transition"
+            >
+              <h3 className="font-semibold text-sm mb-1.5">{f.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200">
+        <div className="max-w-3xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-gray-500">
+          <p>Resume Matcher — built by a CS student at Bennett University.</p>
+          <div className="flex gap-6">
+            <Link to="/build" className="hover:text-[var(--color-ink)] transition">Build</Link>
+            <Link to="/check" className="hover:text-[var(--color-ink)] transition">Check</Link>
+            <Link to="/interview" className="hover:text-[var(--color-ink)] transition">Interview</Link>
+          </div>
+        </div>
+      </footer>
+
     </div>
   )
 }

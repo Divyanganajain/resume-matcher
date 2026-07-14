@@ -2,16 +2,29 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --color-ink: #12151B;
-  --color-paper: #FAFAF7;
-  --color-signal: #2D7FF9;
-  --color-warn: #E8A33D;
-  --color-good: #3FA66A;
+  --color-paper: #F6F5F2;
+  --color-paper-alt: #EDEAE2;
+  --color-ink: #17181C;
+  --color-ink-soft: #4B4E57;
+  --color-line: #DEDBD3;
+  --color-signal: #B4362B;
+  --color-good: #2F6B4F;
+  --color-warn: #B4362B;
+
+  --font-display: 'Newsreader', serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 }
 
 body {
-  margin: 0;
-  background: var(--color-paper);
-  color: var(--color-ink);
   font-family: 'Inter', sans-serif;
+}
+
+.font-mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.bg-paper-texture {
+  background-image: radial-gradient(var(--color-line, #e5e5e5) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
