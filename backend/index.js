@@ -126,34 +126,59 @@ Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use t
   }
 })
 app.post('/api/build-resume', async (req, res) => {
-  const { rawInfo } = req.body
+  const { rawInfo, jdText, contactInfo } = req.body
 
-  const prompt = `You are a professional resume writer. The user will give you raw, unorganized information about their education, work experience, projects, and skills. Turn this into a clean, well-structured, professional resume in plain text format.
+  if (!rawInfo || !contactInfo?.name || !contactInfo?.email) {
+    return res.status(400).json({ error: 'Missing required fields: name and email are required' })
+  }
 
-Use this structure, in this order:
-- Education
-- Projects (2-3 strong bullet points each, using powerful action verbs and quantifiable impact where reasonable)
-- Skills
+  const prompt = `You are an expert resume writer. Build a resume from the raw info below.
 
-Keep the tone professional and concise, the way a real resume reads. Do not invent facts that are not implied by the raw info, but you may phrase things more professionally.
-
-Raw info from user:
+RAW INFO:
 ${rawInfo}
+
+${jdText ? `TARGET JOB DESCRIPTION:\n${jdText}\n` : ''}
+
+CONTACT INFO (use exactly as given, do not invent or modify):
+Name: ${contactInfo.name}
+Email: ${contactInfo.email}
+Phone: ${contactInfo.phone || 'Not provided'}
+LinkedIn: ${contactInfo.linkedin || 'Not provided'}
+Location: ${contactInfo.location || 'Not provided'}
 
 Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use this exact structure:
 {
-  "resume": "<the full formatted resume as plain text, using \\n for line breaks>"
-}`
+  "title": "<professional title/target role>",
+  "summary": "<2-3 sentence professional summary>",
+  "experience": [
+    { "role": "<role>", "company": "<company>", "dates": "<dates>", "bullets": ["<bullet>"] }
+  ],
+  "skills": {
+    "column1": ["<skill>"],
+    "column2": ["<skill>"],
+    "column3": ["<skill>"]
+  },
+  "education": [
+    { "degree": "<degree>", "institution": "<institution>", "dates": "<dates>" }
+  ],
+  "projects": [
+    { "name": "<project name>", "description": "<one line description>", "bullets": ["<bullet>"] }
+  ],
+  "strengths": ["<strength>"],
+  "certificates": ["<certificate>"]
+}
+
+IMPORTANT: Every skill listed must also appear in at least one experience or project bullet. If a section has no data (e.g. no experience yet, or no certificates), return an empty array for it — never invent content that isn't implied by the raw info.`
 
   try {
     const parsed = await callGeminiWithRetry(prompt)
+    parsed.contactInfo = contactInfo
     res.json(parsed)
   } catch (err) {
     console.error('Build resume error:', err)
     res.status(500).json({ error: 'Something went wrong' })
   }
 })
-
 app.listen(5000, () => {
   console.log('Server running on port 5000')
 })

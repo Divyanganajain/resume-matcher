@@ -1,6 +1,47 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
+function highlightKeywords(text, keywords) {
+  if (!keywords || keywords.length === 0) return text
+
+  const pattern = new RegExp(`(${keywords.join('|')})`, 'gi')
+  const parts = text.split(pattern)
+
+  return parts.map((part, index) => {
+    const isMatch = keywords.some(kw => kw.toLowerCase() === part.toLowerCase())
+    return isMatch ? (
+      <mark key={index} className="bg-green-100 text-green-800 rounded px-0.5">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  })
+}
+function analyzeSkillPlacement(resumeText, skills) {
+  if (!skills || skills.length === 0) return []
+
+  const lines = resumeText.split('\n').filter(line => line.trim().length > 0)
+
+  return skills.map(skill => {
+    const regex = new RegExp(skill, 'gi')
+    let count = 0
+    let foundInBullet = false
+
+    lines.forEach(line => {
+      const matches = line.match(regex)
+      if (matches) {
+        count += matches.length
+        const wordCount = line.trim().split(/\s+/).length
+        if (wordCount > 10) {
+          foundInBullet = true
+        }
+      }
+    })
+
+    return { skill, count, onlyInSkillsList: count > 0 && !foundInBullet }
+  })
+}
 function CheckResumePage() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -147,18 +188,47 @@ function CheckResumePage() {
         {results && (
           <div className="border-t border-gray-200 pt-10">
 
-           <div className="text-center mb-10">
-  <p className="font-mono text-xs tracking-widest uppercase text-gray-400 mb-1">
-    ATS Score
-  </p>
-  <p className="font-mono text-6xl font-bold text-[var(--color-signal)]">
-    {results.atsScore}
-  </p>
-  {results.scoreExplanation && (
-    <p className="text-sm text-gray-500 max-w-md mx-auto mt-3">
-      {results.scoreExplanation}
-    </p>
-  )}
+            <div className="text-center mb-10">
+              <p className="font-mono text-xs tracking-widest uppercase text-gray-400 mb-1">
+                ATS Score
+              </p>
+              <p className="font-mono text-6xl font-bold text-[var(--color-signal)]">
+                {results.atsScore}
+              </p>
+              {results.scoreExplanation && (
+                <p className="text-sm text-gray-500 max-w-md mx-auto mt-3">
+                  {results.scoreExplanation}
+                </p>
+              )}
+            </div>
+
+            <div className="mb-10 p-6 rounded-lg bg-white border border-gray-200 text-left">
+              <h3 className="font-mono text-xs tracking-widest uppercase text-gray-400 mb-3">
+                Keyword Scan
+              </h3>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap font-mono">
+                {highlightKeywords(resumeText, results.matchingSkills)}
+              </p>
+            </div>
+            <div className="mb-10 p-6 rounded-lg bg-white border border-gray-200 text-left">
+  <h3 className="font-mono text-xs tracking-widest uppercase text-gray-400 mb-3">
+    Skill Placement
+  </h3>
+  <div className="space-y-2">
+    {analyzeSkillPlacement(resumeText, results.matchingSkills).map((item, index) => (
+      <div key={index} className="flex items-start justify-between gap-4 py-2 border-b border-gray-100 last:border-0">
+        <div>
+          <span className="text-sm font-medium">{item.skill}</span>
+          <span className="text-xs text-gray-400 ml-2">mentioned {item.count}x</span>
+        </div>
+        {item.onlyInSkillsList && (
+          <span className="text-xs text-[var(--color-warn)] text-right">
+            Only in skills list — add to a project bullet
+          </span>
+        )}
+      </div>
+    ))}
+  </div>
 </div>
 
             <div className="grid md:grid-cols-2 gap-8 mb-10">
