@@ -98,7 +98,30 @@ function BuildResumePage() {
 
     setBuilding(false)
   }
+  async function handleDownloadPdf() {
+  try {
+    const response = await fetch('https://resume-matcher-backend-d5q4.onrender.com/api/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(resumeData)
+    })
 
+    if (!response.ok) throw new Error('Failed to generate PDF')
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${resumeData.contactInfo.name.replace(/\s+/g, '_')}_Resume.pdf`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (err) {
+    console.error('Download PDF error:', err)
+    setError('Failed to download PDF. Please try again.')
+  }
+}
   return (
     <div className="min-h-screen bg-[var(--color-paper)] text-[var(--color-ink)] px-8 py-16">
       <div className="max-w-3xl mx-auto">
@@ -282,14 +305,20 @@ function BuildResumePage() {
 )}
             </div>
 
-            <div className="text-center mt-6">
-              <button
-                onClick={() => navigate('/check', { state: { resumeText: formatResumeAsText(resumeData), jdText } })}
-                className="bg-[var(--color-ink)] text-white font-mono text-sm tracking-wide px-6 py-2.5 rounded-lg hover:opacity-90 transition"
-              >
-                Check This Resume's ATS Score →
-              </button>
-            </div>
+           <div className="text-center mt-6 flex justify-center gap-3">
+  <button
+    onClick={() => navigate('/check', { state: { resumeText: formatResumeAsText(resumeData), jdText } })}
+    className="bg-[var(--color-ink)] text-white font-mono text-sm tracking-wide px-6 py-2.5 rounded-lg hover:opacity-90 transition"
+  >
+    Check This Resume's ATS Score →
+  </button>
+  <button
+    onClick={handleDownloadPdf}
+    className="bg-[var(--color-signal)] text-white font-mono text-sm tracking-wide px-6 py-2.5 rounded-lg hover:opacity-90 transition"
+  >
+    Download PDF
+  </button>
+</div>
           </div>
         )}
 
