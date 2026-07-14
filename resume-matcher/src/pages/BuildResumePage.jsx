@@ -239,20 +239,23 @@ function BuildResumePage() {
                 </div>
               </div>
 
-              {resumeData.projects?.length > 0 && (
-                <div>
-                  <h3 className="font-mono text-xs uppercase tracking-widest text-gray-400 border-b pb-1 mb-2">Projects</h3>
-                  {resumeData.projects.map((p, i) => (
-                    <div key={i} className="mb-3">
-                      <p className="text-sm font-medium">{p.name}</p>
-                      <p className="text-sm text-gray-500">{p.description}</p>
-                      <ul className="list-disc list-inside text-sm text-gray-700">
-                        {p.bullets.map((b, j) => <li key={j}>{b}</li>)}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              )}
+             {resumeData.projects?.length > 0 && (
+  <div>
+    <h3 className="font-mono text-xs uppercase tracking-widest text-gray-400 border-b pb-1 mb-2">Projects</h3>
+    {resumeData.projects.map((p, i) => (
+      <div key={i} className="mb-3">
+        <div className="flex justify-between text-sm">
+          <p className="font-medium">{p.name}{p.role ? ` — ${p.role}` : ''}</p>
+          {p.dates && <p className="text-gray-500">{p.dates}</p>}
+        </div>
+        <p className="text-sm text-gray-600">{p.description}</p>
+        {p.techStack?.length > 0 && (
+          <p className="text-xs text-gray-400 mt-1">{p.techStack.join(' · ')}</p>
+        )}
+      </div>
+    ))}
+  </div>
+)}
 
               {resumeData.education?.length > 0 && (
                 <div>
@@ -262,22 +265,21 @@ function BuildResumePage() {
                   ))}
                 </div>
               )}
-
-              {resumeData.strengths?.length > 0 && (
-                <div>
-                  <h3 className="font-mono text-xs uppercase tracking-widest text-gray-400 border-b pb-1 mb-2">Strengths</h3>
-                  <p className="text-sm">{resumeData.strengths.join(', ')}</p>
-                </div>
-              )}
-
-              {resumeData.certificates?.length > 0 && (
-                <div>
-                  <h3 className="font-mono text-xs uppercase tracking-widest text-gray-400 border-b pb-1 mb-2">Certificates</h3>
-                  <ul className="list-disc list-inside text-sm">
-                    {resumeData.certificates.map((c, i) => <li key={i}>{c}</li>)}
-                  </ul>
-                </div>
-              )}
+{resumeData.strengths?.length > 0 && (
+  <div>
+    <h3 className="font-mono text-xs uppercase tracking-widest text-gray-400 border-b pb-1 mb-2">Strengths</h3>
+    {resumeData.strengths.map((s, i) => (
+      <p key={i} className="text-sm mb-1"><span className="font-medium">{s.title}:</span> {s.description}</p>
+    ))}
+  </div>
+)}{resumeData.certificates?.length > 0 && (
+  <div>
+    <h3 className="font-mono text-xs uppercase tracking-widest text-gray-400 border-b pb-1 mb-2">Certificates</h3>
+    {resumeData.certificates.map((c, i) => (
+      <p key={i} className="text-sm"><span className="font-medium">{c.title}</span> — {c.issuer}</p>
+    ))}
+  </div>
+)}
             </div>
 
             <div className="text-center mt-6">

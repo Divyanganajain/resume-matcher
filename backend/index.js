@@ -3,6 +3,8 @@ const cors = require('cors')
 require('dotenv').config()
 const multer = require('multer')
 const {PDFParse} = require('pdf-parse')
+const { renderToStream } = require('@react-pdf/renderer')
+const { buildResumeDocument } = require('./pdfTemplate')
 
 const app = express()
 app.use(cors())
@@ -151,7 +153,7 @@ Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use t
   "title": "<professional title/target role>",
   "summary": "<2-3 sentence professional summary>",
   "experience": [
-    { "role": "<role>", "company": "<company>", "dates": "<dates>", "bullets": ["<bullet>"] }
+    { "role": "<role>", "company": "<company>", "location": "<location or Remote>", "dates": "<dates, use 'Present' if current>", "bullets": ["<bullet>"] }
   ],
   "skills": {
     "column1": ["<skill>"],
@@ -159,15 +161,18 @@ Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use t
     "column3": ["<skill>"]
   },
   "education": [
-    { "degree": "<degree>", "institution": "<institution>", "dates": "<dates>" }
+    { "degree": "<degree>", "institution": "<institution>", "location": "<location>", "dates": "<dates>" }
   ],
   "projects": [
-    { "name": "<project name>", "description": "<one line description>", "bullets": ["<bullet>"] }
+    { "name": "<project name>", "role": "<e.g. Lead Developer, or blank if not applicable>", "dates": "<dates, or blank>", "description": "<one line description>", "techStack": ["<tech>"] }
   ],
-  "strengths": ["<strength>"],
-  "certificates": ["<certificate>"]
+  "strengths": [
+    { "title": "<strength name>", "description": "<one line elaboration>" }
+  ],
+  "certificates": [
+    { "title": "<certificate name>", "issuer": "<issuing organization>" }
+  ]
 }
-
 IMPORTANT: Every skill listed must also appear in at least one experience or project bullet. If a section has no data (e.g. no experience yet, or no certificates), return an empty array for it — never invent content that isn't implied by the raw info.`
 
   try {
@@ -177,6 +182,26 @@ IMPORTANT: Every skill listed must also appear in at least one experience or pro
   } catch (err) {
     console.error('Build resume error:', err)
     res.status(500).json({ error: 'Something went wrong' })
+  }
+})
+app.post('/api/generate-pdf', async (req, res) => {
+  try {
+    const resumeData = req.body
+
+    if (!resumeData?.contactInfo?.name) {
+      return res.status(400).json({ error: 'Missing resume data' })
+    }
+
+    const doc = buildResumeDocument(resumeData)
+    const stream = await renderToStream(doc)
+
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', `attachment; filename="${resumeData.contactInfo.name.replace(/\s+/g, '_')}_Resume.pdf"`)
+
+    stream.pipe(res)
+  } catch (err) {
+    console.error('PDF generation error:', err)
+    res.status(500).json({ error: 'Failed to generate PDF' })
   }
 })
 app.listen(5000, () => {
