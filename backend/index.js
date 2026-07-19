@@ -204,6 +204,83 @@ app.post('/api/generate-pdf', async (req, res) => {
     res.status(500).json({ error: 'Failed to generate PDF' })
   }
 })
+const GITHUB_API = 'https://api.github.com'
+
+async function githubFetch(path) {
+  const response = await fetch(`${GITHUB_API}${path}`, {
+    headers: {
+      'Accept': 'application/vnd.github+json',
+      'User-Agent': 'resume-matcher-github-analyzer',
+    },
+  })
+  if (!response.ok) {
+    if (response.status === 404) return null
+    if (response.status === 403) throw new Error('GitHub rate limit hit. Try again in a bit.')
+    throw new Error(`GitHub API error: ${response.status}`)
+  }
+  return response.json()
+}
+
+app.post('/api/github/analyze', async (req, res) => {
+  try {
+    const { username } = req.body
+    if (!username || typeof username !== 'string') {
+      return res.status(400).json({ error: 'GitHub username is required.' })
+    }
+
+    const cleanUsername = username
+      .replace(/^https?:\/\/(www\.)?github\.com\//, '')
+      .replace(/\/$/, '')
+      .trim()
+
+    const profile = await githubFetch(`/users/${cleanUsername}`)
+    if (!profile) {
+      return res.status(404).json({ error: 'GitHub user not found.' })
+    }
+
+    const repos = await githubFetch(`/users/${cleanUsername}/repos?per_page=100&sort=pushed`)
+
+    const profileReadme = await githubFetch(`/repos/${cleanUsername}/${cleanUsername}/readme`)
+
+    const reposToCheck = (repos || []).filter(r => !r.fork).slice(0, 15)
+
+    const repoDetails = await Promise.all(
+      reposToCheck.map(async (r) => {
+        const readme = await githubFetch(`/repos/${cleanUsername}/${r.name}/readme`)
+        return {
+          name: r.name,
+          description: r.description,
+          language: r.language,
+          stars: r.stargazers_count,
+          forks: r.forks_count,
+          lastPushed: r.pushed_at,
+          hasReadme: !!readme,
+          readmeLength: readme ? Buffer.from(readme.content, 'base64').length : 0,
+          isEmpty: !r.description && !readme,
+        }
+      })
+    )
+
+    res.json({
+      profile: {
+        username: profile.login,
+        name: profile.name,
+        bio: profile.bio,
+        publicRepos: profile.public_repos,
+        followers: profile.followers,
+        following: profile.following,
+        createdAt: profile.created_at,
+        hasProfileReadme: !!profileReadme,
+      },
+      repos: repoDetails,
+      totalReposAnalyzed: repoDetails.length,
+      totalPublicRepos: profile.public_repos,
+    })
+  } catch (err) {
+    console.error('GitHub analyzer error:', err.message)
+    res.status(500).json({ error: err.message || 'Failed to analyze GitHub profile.' })
+  }
+})
 app.listen(5000, () => {
   console.log('Server running on port 5000')
 })

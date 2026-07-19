@@ -1,5 +1,12 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import Navbar from '../components/Navbar'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.5, delay: i * 0.08 } }),
+}
 
 function InterviewQuestionsPage() {
   const location = useLocation()
@@ -35,74 +42,87 @@ function InterviewQuestionsPage() {
     setLoading(false)
   }
 
-  const typeColor = {
-    Technical: 'text-[var(--color-signal)] bg-blue-50 border-blue-200',
+  const typeStyle = {
+    Technical: 'text-[var(--color-signal)] bg-red-50 border-red-200',
     Project: 'text-[var(--color-good)] bg-green-50 border-green-200',
-    Behavioral: 'text-[var(--color-warn)] bg-orange-50 border-orange-200'
+    Behavioral: 'text-[#C68A2E] bg-amber-50 border-amber-200'
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-paper)] text-[var(--color-ink)] px-8 py-16">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-[var(--color-paper)] text-[var(--color-ink)] bg-paper-texture">
+      <Navbar />
 
-        <Link to="/" className="text-xs font-mono text-gray-400 hover:text-[var(--color-signal)] mb-8 inline-block">
+      <div className="max-w-3xl mx-auto px-6 py-16">
+
+        <Link to="/" className="font-mono text-xs text-gray-400 hover:text-[var(--color-signal)] mb-8 inline-block transition">
           ← Back to Home
         </Link>
 
-        <div className="mb-12 text-center">
+        <motion.div initial="hidden" animate="show" variants={fadeUp} className="mb-12 text-center">
           <p className="font-mono text-xs tracking-widest uppercase text-[var(--color-signal)] mb-2">
             Resume Diagnostic
           </p>
-          <h1 className="text-4xl font-semibold tracking-tight">
+          <h1 className="text-5xl mb-3" style={{ fontFamily: 'Lora, serif', fontWeight: 600 }}>
             Interview Questions
           </h1>
-          <p className="text-sm text-gray-500 mt-3">
+          <p className="text-sm text-gray-500 max-w-md mx-auto">
             Paste your resume and a job description to get likely interview questions.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <motion.div initial="hidden" animate="show" custom={1} variants={fadeUp} className="grid md:grid-cols-2 gap-4 mb-6">
           <textarea
             placeholder="Paste your resume here"
             value={resumeText}
             onChange={(e) => setResumeText(e.target.value)}
-            className="h-56 p-4 rounded-lg border border-gray-200 bg-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)]"
+            className="h-56 p-4 rounded-xl border border-gray-200 bg-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)] shadow-sm transition"
           ></textarea>
 
           <textarea
             placeholder="Paste job description here"
             value={jdText}
             onChange={(e) => setJdText(e.target.value)}
-            className="h-56 p-4 rounded-lg border border-gray-200 bg-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)]"
+            className="h-56 p-4 rounded-xl border border-gray-200 bg-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)] shadow-sm transition"
           ></textarea>
-        </div>
+        </motion.div>
 
-        <div className="text-center mb-6">
-          <button
+        <motion.div initial="hidden" animate="show" custom={2} variants={fadeUp} className="text-center mb-6">
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleGenerate}
             disabled={loading}
-            className="bg-[var(--color-ink)] text-white font-mono text-sm tracking-wide px-8 py-3 rounded-lg hover:opacity-90 transition disabled:opacity-50"
+            className="bg-[var(--color-ink)] text-white font-mono text-sm tracking-wide px-8 py-3 rounded-full hover:opacity-90 transition disabled:opacity-50"
           >
             {loading ? 'Generating...' : 'Generate Questions'}
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {error && (
-          <p className="text-center text-sm text-red-500 mb-6">{error}</p>
+          <p className="text-center text-sm text-[var(--color-signal)] mb-6">{error}</p>
         )}
 
-        {questions && (
-          <div className="border-t border-gray-200 pt-10 space-y-3">
-            {questions.map((q, index) => (
-              <div key={index} className="p-4 rounded-lg bg-white border border-gray-200">
-                <span className={`inline-block text-xs font-mono px-2 py-0.5 rounded-full border mb-2 ${typeColor[q.type] || 'text-gray-500 bg-gray-50 border-gray-200'}`}>
-                  {q.type}
-                </span>
-                <p className="text-sm font-medium">{q.question}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        <AnimatePresence>
+          {questions && (
+            <div className="border-t border-gray-200 pt-10 space-y-3">
+              {questions.map((q, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  whileHover={{ x: 4 }}
+                  className="p-5 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <span className={`inline-block text-xs font-mono px-2.5 py-0.5 rounded-full border mb-2 ${typeStyle[q.type] || 'text-gray-500 bg-gray-50 border-gray-200'}`}>
+                    {q.type}
+                  </span>
+                  <p className="text-sm font-medium leading-relaxed">{q.question}</p>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </AnimatePresence>
 
       </div>
     </div>

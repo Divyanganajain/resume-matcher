@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import Navbar from '../components/Navbar'
 
 function MagnifyingGlass() {
   return (
@@ -55,28 +56,7 @@ function LandingPage() {
   return (
     <div className="min-h-screen bg-[var(--color-paper)] text-[var(--color-ink)] overflow-hidden bg-paper-texture">
 
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md bg-[var(--color-paper)]/85 border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full border-2 border-[var(--color-signal)] flex items-center justify-center">
-              <span className="font-mono text-[10px] font-bold text-[var(--color-signal)]">RM</span>
-            </div>
-            <span className="font-semibold text-sm tracking-tight">Resume Matcher</span>
-          </div>
-         <div className="flex items-center gap-7 font-mono text-sm font-semibold text-[var(--color-ink)]">
-  <Link to="/build" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Build</Link>
-  <Link to="/check" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Check</Link>
-  <Link to="/interview" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Interview</Link>
-            <Link
-              to="/check"
-              className="bg-[var(--color-ink)] text-white px-4 py-1.5 rounded-full hover:opacity-85 transition"
-            >
-              Try it →
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="px-6 pt-10 pb-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -112,7 +92,6 @@ function LandingPage() {
           {/* Resume graphic with magnifying glass */}
           <div className="relative w-full max-w-lg mx-auto mb-16 h-96">
 
-            {/* soft ambient glow behind the scene, like a desk lamp, not a generic blob */}
             <div
               className="absolute inset-0 -z-10"
               style={{
@@ -186,7 +165,7 @@ function LandingPage() {
               ))}
             </motion.div>
 
-            {/* ATS Score stamp — the payoff moment once scanning finishes */}
+            {/* ATS Score stamp */}
             <motion.div
               initial={{ opacity: 0, scale: 1.5, rotate: -25 }}
               animate={{ opacity: 1, scale: 1, rotate: -10 }}
@@ -223,14 +202,16 @@ function LandingPage() {
               <motion.div
                 whileHover={{ scale: 1.03, rotateX: 4, rotateY: -4 }}
                 style={{ transformStyle: 'preserve-3d' }}
-                className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-signal)] hover:shadow-md transition-all text-left h-full"
+                className="flex flex-col justify-between min-h-[180px] p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-signal)] hover:shadow-md transition-all text-left"
               >
-                <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-signal)] mb-2">
-                  Build a Resume
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Paste your raw experience and a job description — get an ATS-optimized resume draft.
-                </p>
+                <div>
+                  <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-signal)] mb-2">
+                    Build a Resume
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Paste your raw experience and a job description — get an ATS-optimized resume draft.
+                  </p>
+                </div>
               </motion.div>
             </Link>
 
@@ -238,14 +219,16 @@ function LandingPage() {
               <motion.div
                 whileHover={{ scale: 1.03, rotateX: 4, rotateY: 4 }}
                 style={{ transformStyle: 'preserve-3d' }}
-                className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-good)] hover:shadow-md transition-all text-left h-full"
+                className="flex flex-col justify-between min-h-[180px] p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-good)] hover:shadow-md transition-all text-left"
               >
-                <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-good)] mb-2">
-                  Check My Resume
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Upload or paste your resume, compare it against a job description, and get your ATS score.
-                </p>
+                <div>
+                  <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-good)] mb-2">
+                    Check My Resume
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Upload or paste your resume, compare it against a job description, and get your ATS score.
+                  </p>
+                </div>
               </motion.div>
             </Link>
 
@@ -253,14 +236,16 @@ function LandingPage() {
               <motion.div
                 whileHover={{ scale: 1.03, rotateX: 4, rotateY: -4 }}
                 style={{ transformStyle: 'preserve-3d' }}
-                className="block p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-warn)] hover:shadow-md transition-all text-left h-full"
+                className="flex flex-col justify-between min-h-[180px] p-8 rounded-lg border border-gray-200 bg-white hover:border-[var(--color-warn)] hover:shadow-md transition-all text-left"
               >
-                <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-warn)] mb-2">
-                  Interview Questions
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Get likely interview questions based on your resume and target role.
-                </p>
+                <div>
+                  <h2 className="font-mono text-sm uppercase tracking-wide text-[var(--color-warn)] mb-2">
+                    Interview Questions
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Get likely interview questions based on your resume and target role.
+                  </p>
+                </div>
               </motion.div>
             </Link>
           </motion.div>
@@ -268,7 +253,7 @@ function LandingPage() {
         </div>
       </div>
 
-      {/* How it works — a real sequence, numbering earned */}
+      {/* How it works */}
       <div className="max-w-3xl mx-auto px-6 py-20 border-t border-gray-200 mt-12">
         <p className="font-mono text-xs tracking-widest uppercase text-[var(--color-signal)] mb-3 text-center">
           The process
