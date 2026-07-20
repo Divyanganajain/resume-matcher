@@ -282,6 +282,40 @@ app.post('/api/github/analyze', async (req, res) => {
     res.status(500).json({ error: err.message || 'Failed to analyze GitHub profile.' })
   }
 })
+
+app.post('/api/github/critique', async (req, res) => {
+  const { githubData } = req.body
+
+  if (!githubData) {
+    return res.status(400).json({ error: 'GitHub data is required.' })
+  }
+
+  const prompt = `You are a technical recruiter reviewing a candidate's GitHub profile. Analyze the following data and give an honest, specific critique.
+
+GITHUB PROFILE:
+${JSON.stringify(githubData, null, 2)}
+
+Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use this exact structure:
+{
+  "healthScore": <number 0-100>,
+  "scoreExplanation": "<1-2 sentence explanation mentioning specific strengths and specific gaps>",
+  "recruiterVerdict": "<2-3 sentences, written as if a recruiter skimmed this profile for 20 seconds. Be direct and specific, mention actual repo names.>",
+  "weakPoints": [
+    { "issue": "<specific problem>", "repo": "<repo name if applicable, else null>", "why": "<why this hurts them>" }
+  ],
+  "missing": [<list of things missing overall, e.g. "profile README", "pinned projects", "repo descriptions">],
+  "strengths": [<list of specific things done well, referencing real repo names>],
+  "quickWins": [<3-5 specific, actionable fixes ranked by effort vs impact>]
+}`
+
+  try {
+    const parsed = await callGeminiWithRetry(prompt)
+    res.json(parsed)
+  } catch (err) {
+    console.error('GitHub critique error:', err)
+    res.status(500).json({ error: 'Something went wrong' })
+  }
+})
 app.listen(5000, () => {
   console.log('Server running on port 5000')
 })
