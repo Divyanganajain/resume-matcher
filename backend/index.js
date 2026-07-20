@@ -211,6 +211,7 @@ async function githubFetch(path) {
     headers: {
       'Accept': 'application/vnd.github+json',
       'User-Agent': 'resume-matcher-github-analyzer',
+        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
     },
   })
   if (!response.ok) {
