@@ -14,6 +14,7 @@ function Navbar() {
           <Link to="/build" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Build</Link>
           <Link to="/check" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Check</Link>
           <Link to="/interview" className="hidden sm:inline hover:text-[var(--color-signal)] transition">Interview</Link>
+          <Link to="/github-analyzer" className="hidden sm:inline hover:text-[var(--color-signal)] transition">GitHub</Link>
           <Link
             to="/check"
             className="bg-[var(--color-ink)] text-white px-4 py-1.5 rounded-full hover:opacity-85 transition"

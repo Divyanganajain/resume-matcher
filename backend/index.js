@@ -290,22 +290,45 @@ app.post('/api/github/critique', async (req, res) => {
     return res.status(400).json({ error: 'GitHub data is required.' })
   }
 
-  const prompt = `You are a technical recruiter reviewing a candidate's GitHub profile. Analyze the following data and give an honest, specific critique.
+  const prompt = `You are a technical recruiter who has screened thousands of GitHub profiles in 30 seconds each. You know the subtle signals candidates never think about — not just "add a README." Analyze this profile like you actually would on the job.
 
 GITHUB PROFILE:
 ${JSON.stringify(githubData, null, 2)}
 
-Return ONLY a valid JSON object, no markdown, no backticks, no extra text. Use this exact structure:
+Think about signals beyond documentation:
+- Staleness: how long since each repo was touched? A profile where everything went quiet 6 months ago reads differently than one with recent activity.
+- Naming and framing: generic names like "test", "project1", "practice" vs specific names that signal real work.
+- Depth vs breadth: is there one substantial "hero" project a recruiter would actually click into, or many shallow ones?
+- Account age vs output: does the number/quality of repos match how long the account has existed? Too few after a long time, or a burst of new repos with no history, both read differently.
+- Language consistency: does the stack tell a coherent story (e.g. "full-stack JS dev") or look scattered/unfocused?
+- What a recruiter would click first, and what they'd see if they did.
+
+Give scores (0-100) across these five dimensions, not just one overall number:
+- documentation: README/description quality
+- activity: recency and consistency of commits/pushes
+- substance: depth of actual project work vs empty/trivial repos
+- presentation: naming, descriptions, professional framing
+- diversity: breadth of skills/tech shown without being scattered
+
+Return ONLY a valid JSON object, no markdown, no backticks, no extra text. All fields marked as string arrays must contain plain strings only — never objects, never nested keys. Use this exact structure:
 {
-  "healthScore": <number 0-100>,
+  "healthScore": <number 0-100, overall>,
   "scoreExplanation": "<1-2 sentence explanation mentioning specific strengths and specific gaps>",
+  "dimensionScores": {
+    "documentation": <0-100>,
+    "activity": <0-100>,
+    "substance": <0-100>,
+    "presentation": <0-100>,
+    "diversity": <0-100>
+  },
   "recruiterVerdict": "<2-3 sentences, written as if a recruiter skimmed this profile for 20 seconds. Be direct and specific, mention actual repo names.>",
+  "nonObviousInsight": "<one specific, surprising observation the candidate almost certainly hasn't thought about — e.g. about staleness patterns, naming, hero-project absence, or activity trends. Not about missing README.>",
   "weakPoints": [
-    { "issue": "<specific problem>", "repo": "<repo name if applicable, else null>", "why": "<why this hurts them>" }
+    { "issue": "<specific problem, prioritize non-README issues where they exist>", "repo": "<repo name if applicable, else null>", "why": "<why this hurts them>" }
   ],
-  "missing": [<list of things missing overall, e.g. "profile README", "pinned projects", "repo descriptions">],
-  "strengths": [<list of specific things done well, referencing real repo names>],
-  "quickWins": [<3-5 specific, actionable fixes ranked by effort vs impact>]
+  "missing": [<array of plain strings only, e.g. "profile README", "pinned projects", "repo descriptions">],
+  "strengths": [<array of plain strings only, each a full sentence referencing a real repo name>],
+  "quickWins": [<array of plain strings only, 3-5 items, each one complete actionable sentence ranked by effort vs impact — vary these beyond README fixes>]
 }`
 
   try {
