@@ -4,6 +4,7 @@ import BuildResumePage from './pages/BuildResumePage'
 import CheckResumePage from './pages/CheckResumePage'
 import InterviewQuestionsPage from './pages/InterviewQuestionsPage'
 import GitHubAnalyzer from './pages/GitHubAnalyzerPage'
+import RecruiterScanPage from './pages/RecruiterScanPage'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/check" element={<CheckResumePage />} />
       <Route path="/interview" element={<InterviewQuestionsPage />} />
       <Route path="/github-analyzer" element={<GitHubAnalyzer />} />
+      <Route path="/recruiter-scan" element={<RecruiterScanPage />} />
     </Routes>
   )
 }
