@@ -376,6 +376,49 @@ Return ONLY a valid JSON object, no markdown, no backticks, no extra text. All f
     res.status(500).json({ error: 'Something went wrong' })
   }
 })
+app.post('/api/recruiter-scan', async (req, res) => {
+  const { resumeText, jdText } = req.body
+
+  if (!resumeText) {
+    return res.status(400).json({ error: 'Resume text is required.' })
+  }
+
+  const prompt = `You are a senior technical recruiter with 8+ years of screening experience, having reviewed thousands of resumes for software engineering and internship roles. You are known for being fast, blunt, and pattern-driven — you've seen every template, every buzzword, every trick, and you form judgments in seconds based on instinct built from repetition.
+
+You are now doing exactly what you do dozens of times a day: giving a resume its first 20-second skim before deciding whether it earns a full read. You do NOT read linearly. Your eyes jump based on visual hierarchy, bolding, whitespace, and pattern-matching against thousands of resumes you've already seen.
+
+RESUME:
+${resumeText}
+
+${jdText ? `TARGET JOB DESCRIPTION:\n${jdText}\n` : ''}
+
+Simulate your actual skim, second by second, over roughly 18-22 seconds. Ground every observation in the ACTUAL TEXT of this resume — quote or closely reference real titles, real project names, real numbers, real phrasing. Do not give generic resume advice; give a specific account of what happens when YOUR eyes hit THIS document.
+
+For each moment in the scan, distinguish between:
+- what you literally see (a title, a bolded word, a number, a gap in the layout)
+- what you instantly infer from it (a snap judgment, fair or not, that a real recruiter would form — including unfair pattern-matching, e.g. assuming an unfamiliar tool means junior experience, or a dense paragraph means someone can't communicate concisely)
+
+Be honest about recruiter psychology: skimming fatigue, bias toward familiar keywords/company names, impatience with dense text, and the fact that a resume competing against 200 others for one role gets judged harshly and fast, not fairly.
+
+Return ONLY a valid JSON object, no markdown, no backticks, no extra text. All fields marked as string arrays must contain plain strings only — never objects, never nested keys. Use this exact structure:
+{
+  "firstImpression": "<the very first 1-2 second gut reaction, before any real reading — purely visual/gut, referencing the actual top of this resume>",
+  "scanSequence": [
+    { "second": <number>, "noticed": "<the specific, literal thing on THIS resume caught here — quote or closely reference actual text>", "reaction": "<the snap judgment/inference this triggers, written the way a tired, fast recruiter actually thinks, not diplomatically>" }
+  ],
+  "whatGotSkipped": [<array of plain strings — specific real content from this resume that got skipped or under-weighted purely due to placement, density, or formatting, not because it lacked value>],
+  "verdict": "<3-4 sentences, blunt and specific, in the recruiter's own voice: would they keep reading past 20 seconds or move to the next resume, referencing exact details from this one, including any unfair-but-real bias at play>",
+  "moveForwardLikelihood": <number 0-100>
+}`
+
+  try {
+    const parsed = await callGeminiWithRetry(prompt)
+    res.json(parsed)
+  } catch (err) {
+    console.error('Recruiter scan error:', err)
+    res.status(500).json({ error: 'Something went wrong' })
+  }
+})
 app.listen(5000, () => {
   console.log('Server running on port 5000')
 })

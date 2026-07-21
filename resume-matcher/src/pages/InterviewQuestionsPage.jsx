@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from '../components/Navbar'
+import AnswerBox from '../components/AnswerBox'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -104,20 +105,21 @@ function InterviewQuestionsPage() {
 
         <AnimatePresence>
           {questions && (
-            <div className="border-t border-gray-200 pt-10 space-y-3">
+            <div className="border-t border-gray-200 pt-10 space-y-4">
               {questions.map((q, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                  whileHover={{ x: 4 }}
                   className="p-5 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <span className={`inline-block text-xs font-mono px-2.5 py-0.5 rounded-full border mb-2 ${typeStyle[q.type] || 'text-gray-500 bg-gray-50 border-gray-200'}`}>
                     {q.type}
                   </span>
                   <p className="text-sm font-medium leading-relaxed">{q.question}</p>
+
+                  <AnswerBox question={q.question} resumeText={resumeText} jdText={jdText} />
                 </motion.div>
               ))}
             </div>
