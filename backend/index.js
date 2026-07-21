@@ -339,6 +339,43 @@ Return ONLY a valid JSON object, no markdown, no backticks, no extra text. All f
     res.status(500).json({ error: 'Something went wrong' })
   }
 })
+app.post('/api/interview/evaluate-answer', async (req, res) => {
+  const { question, userAnswer, resumeText, jdText } = req.body
+
+  if (!question || !userAnswer) {
+    return res.status(400).json({ error: 'Question and answer are required.' })
+  }
+
+  const prompt = `You are an experienced technical interviewer evaluating a candidate's spoken/typed answer to an interview question. Be honest and specific — do not be artificially encouraging if the answer is weak.
+
+QUESTION:
+${question}
+
+CANDIDATE'S ANSWER:
+${userAnswer}
+
+${resumeText ? `CANDIDATE'S RESUME (for context, to check if the answer reflects real experience):\n${resumeText}\n` : ''}
+${jdText ? `TARGET JOB DESCRIPTION (for context):\n${jdText}\n` : ''}
+
+Evaluate the answer on: relevance to the question, specificity (concrete details vs vague generalities), structure (clear beginning/middle/end, e.g. STAR for behavioral questions), and whether it reflects real experience from the resume where applicable.
+
+Return ONLY a valid JSON object, no markdown, no backticks, no extra text. All fields marked as string arrays must contain plain strings only — never objects. Use this exact structure:
+{
+  "score": <number 0-10>,
+  "verdict": "<1-2 sentence honest assessment, direct and specific>",
+  "strengths": [<array of plain strings, specific things done well>],
+  "gaps": [<array of plain strings, specific things missing or weak>],
+  "improvedAnswer": "<a stronger rewritten version of their actual answer, keeping their real content/experience, not a generic template>"
+}`
+
+  try {
+    const parsed = await callGeminiWithRetry(prompt)
+    res.json(parsed)
+  } catch (err) {
+    console.error('Answer evaluation error:', err)
+    res.status(500).json({ error: 'Something went wrong' })
+  }
+})
 app.listen(5000, () => {
   console.log('Server running on port 5000')
 })
