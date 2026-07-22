@@ -15,7 +15,7 @@ export function useVoiceCapture() {
   const pausesRef = useRef([])
   const wordCountRef = useRef(0)
 
-  const startRecording = useCallback(() => {
+  const startRecording = useCallback((lang = 'en-US') => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognition) {
       setSupported(false)
@@ -25,7 +25,7 @@ export function useVoiceCapture() {
     const recognition = new SpeechRecognition()
     recognition.continuous = true
     recognition.interimResults = true
-    recognition.lang = 'en-US'
+    recognition.lang = lang
 
     startTimeRef.current = Date.now()
     lastWordTimeRef.current = Date.now()

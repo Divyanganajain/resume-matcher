@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from '../components/Navbar'
+import { useVoiceCapture } from '../hooks/useVoiceCapture'
 
 function formatResumeAsText(resumeData) {
   const lines = []
@@ -59,6 +60,86 @@ function formatResumeAsText(resumeData) {
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.5, delay: i * 0.08 } }),
+}
+
+function VoiceTextarea({ value, onChange, placeholder, heightClass }) {
+  const { isRecording, transcript, setTranscript, supported, startRecording, stopRecording } = useVoiceCapture()
+  const [lang, setLang] = useState('en-US')
+
+  // keep parent state in sync with live transcript while recording
+  const handleMicToggle = () => {
+    if (isRecording) {
+      stopRecording()
+    } else {
+      startRecording(lang)
+    }
+  }
+
+  // push transcript up to parent whenever it changes (live, while speaking)
+  if (transcript && transcript !== value && isRecording) {
+    onChange(transcript)
+  }
+
+  return (
+    <div className="relative">
+      <textarea
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => { onChange(e.target.value); setTranscript(e.target.value) }}
+        className={`${heightClass} w-full p-4 pr-14 rounded-xl border border-gray-200 bg-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)] shadow-sm transition`}
+      ></textarea>
+
+      <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
+        <motion.button
+          type="button"
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleMicToggle}
+          disabled={!supported}
+          title={supported ? (isRecording ? 'Stop recording' : 'Speak instead of typing') : 'Voice input not supported in this browser'}
+          className={`w-9 h-9 rounded-full flex items-center justify-center transition ${
+            isRecording
+              ? 'bg-[var(--color-warn)] text-white'
+              : 'bg-[var(--color-paper)] border border-gray-300 text-gray-500 hover:border-[var(--color-signal)] hover:text-[var(--color-signal)]'
+          }`}
+        >
+          {isRecording ? (
+            <motion.span
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ repeat: Infinity, duration: 1 }}
+              className="w-2.5 h-2.5 rounded-full bg-white"
+            />
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" />
+            </svg>
+          )}
+        </motion.button>
+
+        {!isRecording && (
+          <button
+            type="button"
+            onClick={() => setLang(lang === 'en-US' ? 'hi-IN' : 'en-US')}
+            className="font-mono text-[10px] px-2 py-0.5 rounded-full border border-gray-300 text-gray-500 hover:border-[var(--color-signal)] hover:text-[var(--color-signal)] transition bg-[var(--color-paper)]"
+          >
+            {lang === 'en-US' ? 'EN' : 'हिं'}
+          </button>
+        )}
+      </div>
+
+      {isRecording && (
+        <p className="font-mono text-[11px] text-[var(--color-warn)] mt-1.5 flex items-center gap-1.5">
+          <motion.span
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ repeat: Infinity, duration: 1.2 }}
+            className="w-1.5 h-1.5 rounded-full bg-[var(--color-warn)]"
+          />
+          Listening... speak naturally, in English or Hindi
+        </p>
+      )}
+    </div>
+  )
 }
 
 function BuildResumePage() {
@@ -162,22 +243,22 @@ function BuildResumePage() {
 
         <motion.div initial="hidden" animate="show" custom={2} variants={fadeUp} className="mb-6">
           <label className="font-mono text-xs text-gray-400 uppercase tracking-wide mb-2 block">Your Background</label>
-          <textarea
-            placeholder="e.g. 2nd year CS student, built a React + Node app, know Java and MongoDB..."
+          <VoiceTextarea
             value={rawInfo}
-            onChange={(e) => setRawInfo(e.target.value)}
-            className="h-40 w-full p-4 rounded-xl border border-gray-200 bg-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)] shadow-sm transition"
-          ></textarea>
+            onChange={setRawInfo}
+            heightClass="h-40"
+            placeholder="Tell us about yourself — your degree, year, skills, projects, achievements, certificates. Don't worry about wording or order, just get it all down. We'll turn it into ATS-friendly resume content. Speak it out or type it — whatever's easier."
+          />
         </motion.div>
 
         <motion.div initial="hidden" animate="show" custom={3} variants={fadeUp} className="mb-6">
           <label className="font-mono text-xs text-gray-400 uppercase tracking-wide mb-2 block">Target Job Description (optional)</label>
-          <textarea
-            placeholder="Paste the job description you're targeting, for a tailored resume"
+          <VoiceTextarea
             value={jdText}
-            onChange={(e) => setJdText(e.target.value)}
-            className="h-40 w-full p-4 rounded-xl border border-gray-200 bg-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-signal)] shadow-sm transition"
-          ></textarea>
+            onChange={setJdText}
+            heightClass="h-40"
+            placeholder="Paste or speak the job description you're targeting, for a tailored resume"
+          />
         </motion.div>
 
         {error && (
